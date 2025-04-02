@@ -1,0 +1,6 @@
+---
+  - name: update angular app component
+    copy:
+      src: app.component.html
+      dest: /var/www/html/app.html
+...
