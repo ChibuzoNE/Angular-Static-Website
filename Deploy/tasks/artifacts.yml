@@ -1,0 +1,21 @@
+---
+- name: Download artifact from S3 or Jenkins
+  get_url:
+    url: "http://jenkins-master:8080/job/angular-app/{{ deploy_version }}/artifact/dist/angular-app-{{ deploy_version }}.tar.gz"
+    dest: "/tmp/angular-app-{{ deploy_version }}.tar.gz"
+    when: rollback_version != ''
+    ignore_errors: yes
+
+- name: Extract artifact
+  unarchive:
+    src: "/tmp/angular-app-{{ app_version }}.tar.gz"
+    dest: "/var/www/html/versions/{{ app_version }}"
+    remote_src: yes
+  when: rollback_version != ''
+
+- name: Copy new Angular build from Jenkins workspace
+  copy:
+    src: "{{ lookup('env', 'WORKSPACE') }}/dist/"
+    dest: "{{ versions_path }}/{{ app_version }}/"
+  when: rollback_version == ''
+...

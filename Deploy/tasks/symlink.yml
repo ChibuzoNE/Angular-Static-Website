@@ -1,0 +1,18 @@
+---
+- name: Remove old symlink
+  file:
+    path: "{{ deploy_path }}"
+    state: absent
+
+- name: Update symlink
+  file:
+    src: "/var/www/html/versions/{{ app_version }}/dist/angular-app"
+    dest: /var/www/html/current
+    state: link
+
+#- name: Save current version to file
+# copy:
+  #  content: "{{ deploy_version }}"
+  # dest: "/var/www/CURRENT_VERSION"
+    
+...

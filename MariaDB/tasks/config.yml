@@ -1,0 +1,22 @@
+- name: Create MariaDB database
+  mysql_db:
+    name: "{{ mariadb_database }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create MariaDB user
+  mysql_user:
+    name: "{{ mariadb_user }}"
+    password: "{{ mariadb_password }}"
+    priv: "{{ mariadb_database }}.*:ALL"
+    host: localhost
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Import sample data (if available)
+  mysql_db:
+    name: "{{ mariadb_database }}"
+    state: import
+    target: /tmp/sample_data.sql
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    ignore_errors: yes

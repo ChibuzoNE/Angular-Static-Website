@@ -1,0 +1,6 @@
+---
+# vars file for Deploy
+app_name: angular-app
+app_version: "{{ lookup('env', 'BUILD_NUMBER') | default('1.0.0') }}"
+deploy_path: /var/www/html
+versions_path: /var/www/versions

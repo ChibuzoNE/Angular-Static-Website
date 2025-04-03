@@ -3,4 +3,5 @@
     copy:
       src: app.component.html
       dest: /var/www/html/app.html
+    notify: Restart apache2
 ...
