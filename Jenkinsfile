@@ -12,7 +12,7 @@ pipeline{
             steps{
                 sh 'ng build'
                 sh 'ls'
-                sh 'cd dist && ls'
+                sh 'cd dist'
                 sh 'cd dist/angular/browser && ls'
             }
         }
