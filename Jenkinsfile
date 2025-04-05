@@ -20,13 +20,14 @@ pipeline {
                 '''
             }
         }
+
         stage('Build') {
-                steps {
-                    sh '''
-                        npm install
-                        ng build --configuration=production
-                        ls -la dist/
-                    '''
+            steps {
+                sh '''
+                    npm install
+                    ng build --configuration=production
+                    ls -la dist/
+                '''
             }
         }
 
@@ -39,24 +40,10 @@ pipeline {
                         mkdir -p "${AWS_CLI_HOME}"
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
                         
-                        # Extract using Python with proper permissions
-                        python3 -c "
-                        import zipfile
-                        import os
-                        with zipfile.ZipFile('${AWS_CLI_HOME}/awscliv2.zip', 'r') as zip_ref:
-                            for member in zip_ref.infolist():
-                                target_path = os.path.join('${AWS_CLI_HOME}', member.filename)
-                                if member.is_dir():
-                                    os.makedirs(target_path, exist_ok=True)
-                                else:
-                                    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-                                    with open(target_path, 'wb') as out:
-                                        out.write(zip_ref.read(member.filename))
-                                    if member.filename.endswith('/install'):
-                                        os.chmod(target_path, 0o755)
-                        "
+                        # Extract using Python with proper permissions (single line command)
+                        python3 -c "import zipfile, os; with zipfile.ZipFile('${AWS_CLI_HOME}/awscliv2.zip', 'r') as zip_ref: [zip_ref.extract(member, '${AWS_CLI_HOME}') for member in zip_ref.infolist()]"
                         
-                        # Verify the installer has execute permissions
+                        # Set execute permissions and install
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
                             chmod +x "${AWS_CLI_HOME}/aws/install"
                             "${AWS_CLI_HOME}/aws/install" \
