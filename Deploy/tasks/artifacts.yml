@@ -1,21 +1,40 @@
 ---
-- name: Download artifact from S3 or Jenkins
-  get_url:
-    url: "http://jenkins-master:8080/job/angular-app/{{ deploy_version }}/artifact/dist/angular-app-{{ deploy_version }}.tar.gz"
-    dest: "/tmp/angular-app-{{ deploy_version }}.tar.gz"
-    when: rollback_version != ''
-    ignore_errors: yes
+- name: Download, extract and copy Angular artifact from S3
+  hosts: app_servers
+  become: yes
+  vars:
+    s3_bucket: "cn-jenkins-angular"
+    artifact_key: "artifacts/angular-app-v1.0.0.zip"
+    download_dir: "/tmp/angular"
+    extract_dir: "/tmp/angular/extracted"
+    target_dir: "/var/www/html/angular"
 
-- name: Extract artifact
-  unarchive:
-    src: "/tmp/angular-app-{{ app_version }}.tar.gz"
-    dest: "/var/www/html/versions/{{ app_version }}"
-    remote_src: yes
-  when: rollback_version != ''
+  tasks:
 
-- name: Copy new Angular build from Jenkins workspace
-  copy:
-    src: "{{ lookup('env', 'WORKSPACE') }}/dist/"
-    dest: "{{ versions_path }}/{{ app_version }}/"
-  when: rollback_version == ''
-...
+    - name: Create download and extract directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ download_dir }}"
+        - "{{ extract_dir }}"
+
+    - name: Download artifact from S3
+      command: >
+        aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
+      args:
+        creates: "{{ download_dir }}/artifact.zip"
+
+    - name: Unarchive the artifact
+      unarchive:
+        src: "{{ download_dir }}/artifact.zip"
+        dest: "{{ extract_dir }}"
+        remote_src: yes
+
+    - name: Copy extracted files to Apache root
+      copy:
+        src: "{{ extract_dir }}/"
+        dest: "{{ target_dir }}/"
+        owner: www-data
+        group: www-data
+      notify: Restart apache2
