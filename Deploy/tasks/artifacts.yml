@@ -1,6 +1,6 @@
 ---
   - name: Create download and extract directories
-        file:
+    file:
           path: "{{ item }}"
           state: directory
           mode: '0755'
