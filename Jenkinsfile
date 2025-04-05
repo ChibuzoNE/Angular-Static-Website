@@ -78,15 +78,12 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                try {
-                    cleanWs()
-                } catch (e) {
-                    echo "Failed to clean workspace: ${e.getMessage()}"
-                    // Optionally, you can store the error message for later review
-                }
-            }
+        success {
+            echo "Deployment successful!"
+        }
+        failure {
+            echo "Deployment failed!"
         }
     }
+
 }
