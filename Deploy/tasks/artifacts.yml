@@ -14,8 +14,9 @@
 - name: Download artifact from S3
   command: >
     aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir
-    }}/artifact.zip args:
-  creates: "{{ download_dir }}/artifact.zip"
+    }}/artifact.zip 
+  args:
+    creates: "{{ download_dir }}/artifact.zip"
 - name: Unarchive the artifact
   unarchive:
     src: "{{ download_dir }}/artifact.zip"
