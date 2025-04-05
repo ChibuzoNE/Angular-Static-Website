@@ -59,13 +59,12 @@ pipeline {
                         # Verify the installer has execute permissions
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
                             chmod +x "${AWS_CLI_HOME}/aws/install"
-                            # Install AWS CLI locally without requiring root
                             "${AWS_CLI_HOME}/aws/install" \
                                 --bin-dir "${AWS_CLI_HOME}/bin" \
                                 --install-dir "${AWS_CLI_HOME}/aws-cli" \
                                 --update
                         else
-                            echo "Error: AWS CLI installer not found!"
+                            echo "Error: AWS CLI installer not found after extraction!"
                             exit 1
                         fi
                         
