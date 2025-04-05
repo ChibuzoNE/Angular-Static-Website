@@ -10,7 +10,7 @@ pipeline{
     stages{
         stage('build'){
             steps{
-                sh 'ng install npm nodejs'
+                sh 'install npm nodejs'
                 sh 'ng build'
                 sh 'ls'
                 sh 'cd dist'
