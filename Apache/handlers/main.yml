@@ -1,6 +1,5 @@
 ---
 # handlers file for Apache
----
 - name: Restart Apache
   service:
     name: apache2
