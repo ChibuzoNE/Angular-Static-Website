@@ -66,15 +66,9 @@ pipeline {
 
         stage('S3 Upload') {
             steps {
-                withCredentials([
-                    // Use the stored credentials
-                    usernamePassword(credentialsId: 'aws-key', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {
+                withAWS(credentials: 'aws-key') {
                     sh '''
-                        aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
-                        aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
                         aws configure set region "$AWS_REGION"
-
                         aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
                         echo "Deployment complete!"
                     '''
