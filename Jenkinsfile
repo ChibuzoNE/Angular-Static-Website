@@ -10,10 +10,11 @@ pipeline{
     stages{
         stage('build'){
             steps{
+                sh 'ng install npm nodejs'
                 sh 'ng build'
                 sh 'ls'
                 sh 'cd dist'
-                sh 'cd dist/angular/browser && ls'
+                sh 'cd dist/temp-app/browser && ls'
             }
         }
         stage('s3 upload'){
