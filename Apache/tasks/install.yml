@@ -1,17 +1,6 @@
 ---
-  - name: install HTTPD
-    package:
-      name: httpd
-      state: present
-
-  - name: Ensure HTTPD is running
-    service:
-      name: httpd
-      state: started
-      enabled: yes
-
   - name: install apache2
-    package:
+    apt:
       name: apache2
       state: present
 
