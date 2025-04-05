@@ -1,6 +1,6 @@
 ---
   - name: install HTTPD
-    yum:
+    package:
       name: httpd
       state: present
 
@@ -11,7 +11,7 @@
       enabled: yes
 
   - name: install apache2
-    apt:
+    package:
       name: apache2
       state: present
 
