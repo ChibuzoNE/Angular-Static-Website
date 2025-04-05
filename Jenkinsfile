@@ -44,6 +44,8 @@ pipeline {
 
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
                             chmod +x "${AWS_CLI_HOME}/aws/install"
+                            # Set execute permissions for the AWS CLI binary
+                            chmod +x "${AWS_CLI_HOME}/bin/aws"
                             "${AWS_CLI_HOME}/aws/install" \
                                 --bin-dir "${AWS_CLI_HOME}/bin" \
                                 --install-dir "${AWS_CLI_HOME}/aws-cli" \
@@ -54,6 +56,8 @@ pipeline {
                         fi
 
                         rm -f "${AWS_CLI_HOME}/awscliv2.zip"
+                        # Ensure correct permissions and check if AWS CLI works
+                        chmod +x "${AWS_CLI_HOME}/bin/aws"  # Reapply just in case
                         aws --version || exit 1
                     fi
                 '''
