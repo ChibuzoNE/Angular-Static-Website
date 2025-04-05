@@ -37,12 +37,19 @@ pipeline {
                     # Install AWS CLI locally in workspace
                     if ! command -v aws &> /dev/null; then
                         echo "Installing AWS CLI..."
+
+                        # Ensure unzip is installed
+                        if ! command -v unzip &> /dev/null; then
+                            echo "Installing unzip..."
+                            sudo apt-get update && sudo apt-get install -y unzip
+                        fi
+
                         mkdir -p "${AWS_CLI_HOME}"
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
-                        
-                        # Extract with unzip (simpler than Python)
+
+                        # Extract using unzip
                         unzip -q "${AWS_CLI_HOME}/awscliv2.zip" -d "${AWS_CLI_HOME}"
-                        
+
                         # Set execute permissions and install
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
                             chmod +x "${AWS_CLI_HOME}/aws/install"
@@ -54,10 +61,10 @@ pipeline {
                             echo "Error: AWS CLI installer not found after extraction!"
                             exit 1
                         fi
-                        
+
                         # Clean up
                         rm -f "${AWS_CLI_HOME}/awscliv2.zip"
-                        
+
                         # Verify installation
                         aws --version || exit 1
                     fi
