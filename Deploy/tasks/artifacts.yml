@@ -9,8 +9,8 @@
     path: "{{ item }}"
     state: directory
   loop:
-    - "{{ download_dir }}"
-    - "{{ extract_dir }}"
+      - "{{ download_dir }}"
+      - "{{ extract_dir }}"
 - name: Download artifact from S3
   command: >
     aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir
