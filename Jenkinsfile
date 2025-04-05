@@ -34,23 +34,14 @@ pipeline {
         stage('Install AWS CLI') {
             steps {
                 sh '''
-                    # Install AWS CLI locally in workspace
                     if ! command -v aws &> /dev/null; then
-                        echo "Installing AWS CLI..."
-
-                        # Ensure unzip is installed
-                        if ! command -v unzip &> /dev/null; then
-                            echo "Installing unzip..."
-                            sudo apt-get update && sudo apt-get install -y unzip
-                        fi
-
+                        echo "Installing AWS CLI using Python (no unzip required)..."
                         mkdir -p "${AWS_CLI_HOME}"
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
 
-                        # Extract using unzip
-                        unzip -q "${AWS_CLI_HOME}/awscliv2.zip" -d "${AWS_CLI_HOME}"
+                        # Use Python to unzip (avoids need for unzip binary)
+                        python3 -c "import zipfile; zipfile.ZipFile('${AWS_CLI_HOME}/awscliv2.zip').extractall('${AWS_CLI_HOME}')"
 
-                        # Set execute permissions and install
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
                             chmod +x "${AWS_CLI_HOME}/aws/install"
                             "${AWS_CLI_HOME}/aws/install" \
@@ -58,14 +49,11 @@ pipeline {
                                 --install-dir "${AWS_CLI_HOME}/aws-cli" \
                                 --update
                         else
-                            echo "Error: AWS CLI installer not found after extraction!"
+                            echo 'Error: AWS CLI installer not found after extraction!'
                             exit 1
                         fi
 
-                        # Clean up
                         rm -f "${AWS_CLI_HOME}/awscliv2.zip"
-
-                        # Verify installation
                         aws --version || exit 1
                     fi
                 '''
@@ -83,7 +71,6 @@ pipeline {
                         aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
                         aws configure set region "$AWS_REGION"
 
-                        # Upload to S3
                         aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
                         echo "Deployment complete!"
                     '''
