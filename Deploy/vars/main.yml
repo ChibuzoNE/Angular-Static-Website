@@ -4,3 +4,8 @@ app_name: angular-app
 app_version: "{{ lookup('env', 'BUILD_NUMBER') | default('1.0.0') }}"
 deploy_path: /var/www/html
 versions_path: /var/www/versions
+s3_bucket: "cn-jenkins-angular"
+artifact_key: "artifacts/angular-app-v1.0.0.zip"
+download_dir: "/tmp/angular"
+extract_dir: "/tmp/angular/extracted"
+target_dir: "/var/www/html"
