@@ -1,5 +1,11 @@
 pipeline{
     agent any
+
+    environment {
+    NODEJS_HOME = tool 'NodeJS-20'  // Must match Jenkins config
+    PATH = "${NODEJS_HOME}/bin:${env.PATH}"
+}
+
     stages{
         stage('build'){
             steps{
