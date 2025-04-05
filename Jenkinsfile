@@ -20,7 +20,7 @@ pipeline{
             steps{
                 withAWS(region: 'us-east-2', credentials: 'aws-key'){
                     sh 'ls -la'
-                    sh 'aws s3 cp dist/angular/browser/. s3://cn-jenkins-angular/ --recursive'
+                    sh 'aws s3 cp dist/temp-app/browser/. s3://cn-jenkins-angular/ --recursive'
                 }
             }
         }
