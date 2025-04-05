@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     tools {
@@ -40,8 +40,8 @@ pipeline {
                         mkdir -p "${AWS_CLI_HOME}"
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
                         
-                        # Extract using Python with proper permissions (single line command)
-                        python3 -c "import zipfile, os; with zipfile.ZipFile('${AWS_CLI_HOME}/awscliv2.zip', 'r') as zip_ref: [zip_ref.extract(member, '${AWS_CLI_HOME}') for member in zip_ref.infolist()]"
+                        # Extract with unzip (simpler than Python)
+                        unzip -q "${AWS_CLI_HOME}/awscliv2.zip" -d "${AWS_CLI_HOME}"
                         
                         # Set execute permissions and install
                         if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
