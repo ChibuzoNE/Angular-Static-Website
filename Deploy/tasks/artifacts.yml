@@ -1,29 +1,47 @@
 ---
+# Ensure AWS CLI is installed (Ubuntu/Debian)
 - name: Install AWS CLI on Ubuntu/Debian
-  apt:
-    name: awscli
-    state: present
+  shell: |
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
   when: ansible_facts['pkg_mgr'] == "apt"
+  args:
+    creates: "/usr/local/bin/aws"
+
+# Ensure AWS CLI is installed (RHEL/CentOS)
+- name: Install AWS CLI on RHEL/CentOS
+  yum:
+    name: aws-cli
+    state: present
+  when: ansible_facts['pkg_mgr'] == "yum"
+
 - name: Create download and extract directories
   file:
     path: "{{ item }}"
     state: directory
+    mode: '0755'
   loop:
-      - "{{ download_dir }}"
-      - "{{ extract_dir }}"
+    - "{{ download_dir }}"
+    - "{{ extract_dir }}"
+
 - name: Download artifact from S3
   command: >
-    aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir
-    }}/artifact.zip 
+    aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
   args:
     creates: "{{ download_dir }}/artifact.zip"
+
 - name: Unarchive the artifact
   unarchive:
     src: "{{ download_dir }}/artifact.zip"
     dest: "{{ extract_dir }}"
     remote_src: yes
+
 - name: Copy extracted files to Apache root
   copy:
     src: "{{ extract_dir }}/"
     dest: "{{ target_dir }}/"
+    owner: www-data
+    group: www-data
+    mode: '0755'
   notify: Restart apache2
