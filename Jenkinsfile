@@ -2,16 +2,22 @@ pipeline{
     agent any
     
 
-    environment {
-    NODEJS_HOME = tool 'NodeJS-20'  // Must match Jenkins config
-    PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-}
+    tools {
+        nodejs 'NodeJS-20'
+    }
 
     stages{
+
+        stage('Setup') {
+            steps {
+                sh 'npm install -g @angular/cli'
+            }
+        }
+
         stage('build'){
             steps{
-                sh 'install nodejs npm'
-                //sh 'npm install'
+                sh 'install nodejs'
+                sh 'npm install'
                 sh 'ng build'
                 sh 'ls'
                 sh 'cd dist && ls'
