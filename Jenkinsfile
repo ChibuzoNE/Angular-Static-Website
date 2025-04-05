@@ -27,8 +27,8 @@ pipeline{
         }
         stage('build'){
             steps{
-                sh 'install npm nodejs'
-                sh 'ng build'
+                sh 'npm install'
+                sh 'ng build --configuration=production'
                 sh 'ls'
                 sh 'cd dist'
                 sh 'cd dist/temp-app/browser && ls'
