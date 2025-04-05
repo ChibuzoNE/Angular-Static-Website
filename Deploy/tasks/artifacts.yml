@@ -1,4 +1,18 @@
 ---
+# Ensure unzip is installed (Ubuntu/Debian)
+- name: Install unzip on Ubuntu/Debian
+  apt:
+    name: unzip
+    state: present
+  when: ansible_facts['pkg_mgr'] == "apt"
+
+# Ensure unzip is installed (RHEL/CentOS)
+- name: Install unzip on RHEL/CentOS
+  yum:
+    name: unzip
+    state: present
+  when: ansible_facts['pkg_mgr'] == "yum"
+
 # Ensure AWS CLI is installed (Ubuntu/Debian)
 - name: Install AWS CLI on Ubuntu/Debian
   shell: |
