@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-20'  // Must match the name in Jenkins Global Tools
+        nodejs 'NodeJS-20'
     }
 
     environment {
@@ -22,12 +22,22 @@ pipeline {
         stage('Install AWS CLI') {
             steps {
                 sh '''
-                    # Install AWS CLI if not present
+                    # Install AWS CLI using bundled installer (no unzip required)
                     if ! command -v aws &> /dev/null; then
                         echo "Installing AWS CLI..."
+                        # Download the AWS CLI install script
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip awscliv2.zip
-                        sudo ./aws/install
+                        
+                        # Use Python to extract (no unzip needed)
+                        python3 -m zipfile -e awscliv2.zip .
+                        
+                        # Install AWS CLI
+                        sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
+                        
+                        # Clean up
+                        rm -rf awscliv2.zip aws/
+                        
+                        # Verify installation
                         aws --version
                     fi
                 '''
