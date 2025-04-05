@@ -1,22 +1,30 @@
-pipeline{
+pipeline {
     agent any
-    
 
-    environment {
-    NODEJS_HOME = tool 'NodeJS-20'  // Must match Jenkins config
-    PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-}
-
-    stages{
-        stage('build'){
-            steps{
-                sh 'npm install'
-                sh 'ng build'
-                sh 'ls'
-                sh 'cd dist'
-                sh 'cd dist/temp-app/browser && ls'
+    stages {
+        stage('Install Node.js') {
+            steps {
+                sh '''
+                    # Install Node.js 20.x if not present
+                    if ! command -v node &> /dev/null; then
+                        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+                        sudo apt-get install -y nodejs
+                    fi
+                    sudo npm install -g @angular/cli
+                '''
             }
         }
+
+        stage('Build') {
+            steps {
+                sh '''
+                    npm install
+                    ng build --configuration=production
+                    ls -la dist/
+                '''
+            }
+        }
+
         stage('s3 upload'){
             steps{
                 withAWS(region: 'us-east-2', credentials: 'aws-key'){
@@ -24,6 +32,13 @@ pipeline{
                     sh 'aws s3 cp dist/temp-app/browser/. s3://cn-jenkins-angular/ --recursive'
                 }
             }
+        }
+
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
