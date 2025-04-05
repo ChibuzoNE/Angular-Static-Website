@@ -30,19 +30,41 @@ pipeline {
                         mkdir -p "${AWS_CLI_HOME}"
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
                         
-                        # Use Python to extract (no unzip needed)
-                        python3 -m zipfile -e "${AWS_CLI_HOME}/awscliv2.zip" "${AWS_CLI_HOME}"
+                        # Extract using Python with proper permissions
+                        python3 -c "
+                        import zipfile
+                        import os
+                        with zipfile.ZipFile('${AWS_CLI_HOME}/awscliv2.zip', 'r') as zip_ref:
+                            for member in zip_ref.infolist():
+                                target_path = os.path.join('${AWS_CLI_HOME}', member.filename)
+                                if member.is_dir():
+                                    os.makedirs(target_path, exist_ok=True)
+                                else:
+                                    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                                    with open(target_path, 'wb') as out:
+                                        out.write(zip_ref.read(member.filename))
+                                    if member.filename.endswith('/install'):
+                                        os.chmod(target_path, 0o755)
+                        "
                         
-                        # Install AWS CLI locally
-                        "${AWS_CLI_HOME}/aws/install" \
-                            --bin-dir "${AWS_CLI_HOME}/bin" \
-                            --install-dir "${AWS_CLI_HOME}/aws-cli"
+                        # Verify the installer has execute permissions
+                        if [ -f "${AWS_CLI_HOME}/aws/install" ]; then
+                            chmod +x "${AWS_CLI_HOME}/aws/install"
+                            # Install AWS CLI locally without requiring root
+                            "${AWS_CLI_HOME}/aws/install" \
+                                --bin-dir "${AWS_CLI_HOME}/bin" \
+                                --install-dir "${AWS_CLI_HOME}/aws-cli" \
+                                --update
+                        else
+                            echo "Error: AWS CLI installer not found!"
+                            exit 1
+                        fi
                         
                         # Clean up
                         rm -f "${AWS_CLI_HOME}/awscliv2.zip"
                         
                         # Verify installation
-                        aws --version
+                        aws --version || exit 1
                     fi
                 '''
             }
@@ -52,7 +74,7 @@ pipeline {
             steps {
                 sh '''
                     npm install
-                    ng build
+                    ng build --configuration=production
                     ls -la dist/
                 '''
             }
