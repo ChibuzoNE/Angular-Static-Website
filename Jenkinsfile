@@ -1,16 +1,16 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS-20'  // Must match the name in Jenkins Global Tools
+    }
+
     stages {
-        stage('Install Node.js') {
+        stage('Verify Node.js') {
             steps {
                 sh '''
-                    # Install Node.js 20.x if not present
-                    if ! command -v node &> /dev/null; then
-                        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-                        sudo apt-get install -y nodejs
-                    fi
-                    sudo npm install -g @angular/cli
+                    node --version
+                    npm --version
                 '''
             }
         }
