@@ -1,3 +1,4 @@
+---
 - name: Create download and extract directories
       file:
         path: "{{ item }}"
@@ -27,3 +28,4 @@
         group: www-data
         mode: '0755'
       notify: Restart apache2
+...
