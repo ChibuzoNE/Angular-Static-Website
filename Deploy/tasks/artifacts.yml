@@ -1,20 +1,8 @@
----
-- name: Download, extract and copy Angular artifact from S3
-  hosts: app_servers
-  become: yes
-  vars:
-    s3_bucket: "cn-jenkins-angular"
-    artifact_key: "artifacts/angular-app-v1.0.0.zip"
-    download_dir: "/tmp/angular"
-    extract_dir: "/tmp/angular/extracted"
-    target_dir: "/var/www/html/angular"
-
-  tasks:
-
-    - name: Create download and extract directories
+- name: Create download and extract directories
       file:
         path: "{{ item }}"
         state: directory
+        mode: '0755'
       loop:
         - "{{ download_dir }}"
         - "{{ extract_dir }}"
@@ -37,4 +25,5 @@
         dest: "{{ target_dir }}/"
         owner: www-data
         group: www-data
+        mode: '0755'
       notify: Restart apache2
