@@ -7,6 +7,8 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-2'
+        AWS_CLI_HOME = "${WORKSPACE}/aws-cli"
+        PATH = "${AWS_CLI_HOME}/bin:${env.PATH}"
     }
 
     stages {
@@ -22,20 +24,22 @@ pipeline {
         stage('Install AWS CLI') {
             steps {
                 sh '''
-                    # Install AWS CLI using bundled installer (no unzip required)
+                    # Install AWS CLI locally in workspace
                     if ! command -v aws &> /dev/null; then
                         echo "Installing AWS CLI..."
-                        # Download the AWS CLI install script
-                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        mkdir -p "${AWS_CLI_HOME}"
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "${AWS_CLI_HOME}/awscliv2.zip"
                         
                         # Use Python to extract (no unzip needed)
-                        python3 -m zipfile -e awscliv2.zip .
+                        python3 -m zipfile -e "${AWS_CLI_HOME}/awscliv2.zip" "${AWS_CLI_HOME}"
                         
-                        # Install AWS CLI
-                        sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
+                        # Install AWS CLI locally
+                        "${AWS_CLI_HOME}/aws/install" \
+                            --bin-dir "${AWS_CLI_HOME}/bin" \
+                            --install-dir "${AWS_CLI_HOME}/aws-cli"
                         
                         # Clean up
-                        rm -rf awscliv2.zip aws/
+                        rm -f "${AWS_CLI_HOME}/awscliv2.zip"
                         
                         # Verify installation
                         aws --version
@@ -48,7 +52,7 @@ pipeline {
             steps {
                 sh '''
                     npm install
-                    ng build --configuration=production
+                    ng build
                     ls -la dist/
                 '''
             }
