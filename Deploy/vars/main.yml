@@ -7,4 +7,3 @@ versions_path: /var/www/versions
 s3_bucket: "cn-jenkins-angular"
 artifact_key: "artifacts/angular-app-v1.0.58.zip"
 download_dir: "/tmp/angular"
-extract_dir: "/tmp/angular/extracted"
