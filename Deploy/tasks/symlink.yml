@@ -1,10 +1,26 @@
 ---
-- name: Create symlink to current deployment
+- name: Remove old symlink
   file:
-    src: "/var/www/html/angular_app-{{ artifact_version }}"
-    dest: "/var/www/html/current"
+    path: "{{ deploy_path }}"
+    state: absent
+
+- name: Check if the source directory exists
+  stat:
+    path: "/var/www/html/versions/{{ artifact_version }}/dist/angular-app"
+  register: angular_app_stat
+
+- name: Fail if the source directory does not exist
+  fail:
+    msg: "The source directory /var/www/html/versions/{{ artifact_version }}/dist/angular-app does not exist!"
+  when: not angular_app_stat.stat.exists
+
+- name: Update symlink
+  file:
+    src: "/var/www/html/versions/{{ artifact_version }}/dist/angular-app"
+    dest: /var/www/html/current
     state: link
-    force: true
+    force: yes
+  when: artifact_version is defined and angular_app_stat.stat.exists
 ...
 
 #- name: Save current version to file
