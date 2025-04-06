@@ -1,8 +1,7 @@
 ---
-
 # Fixed task - Use aws_s3 module instead of command to avoid credential issues
 - name: Download Angular App artifact from S3
-  amazon.aws.s3:
+  aws_s3:
     bucket: "nottie-angular-app"
     object: "artifacts/{{ artifact_version }}.tar.gz"
     dest: "/var/www/html/"
