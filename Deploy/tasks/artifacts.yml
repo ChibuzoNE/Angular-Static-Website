@@ -77,6 +77,6 @@
 - name: Copy extracted files to Apache root
   copy:
     src: "{{ extract_dir }}/"
-    dest: "{{ target_dir }}/"
+    dest: /var/www/html/
     remote_src: yes
   notify: Restart apache2
