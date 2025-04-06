@@ -2,7 +2,7 @@
 # Ensure artifact_version is set before usage
 - name: Set default artifact version if not provided
   set_fact:
-    artifact_version: "{{ artifact_version if artifact_version is defined else 'v70' }}"
+    artifact_version: "{{ artifact_version | default('v70') }}"
 
 - name: Download Angular App artifact from S3
   amazon.aws.aws_s3:
@@ -28,12 +28,4 @@
   when: s3_download.changed
   notify:
     - Restart apache2
-
-- name: Create symlink to current deployment
-  file:
-    src: "/var/www/html/angular_app-{{ artifact_version }}"
-    dest: "/var/www/html/current"
-    state: link
-    force: true
-
 ...
