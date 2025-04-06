@@ -11,9 +11,9 @@
     state: link
   when: artifact_version is defined
 
-#- name: Save current version to file
-# copy:
-  #  content: "{{ deploy_version }}"
-  # dest: "/var/www/CURRENT_VERSION"
+- name: Save current version to file
+  copy:
+    content: "{{ deploy_version }}"
+    dest: "/var/www/CURRENT_VERSION"
     
 ...
