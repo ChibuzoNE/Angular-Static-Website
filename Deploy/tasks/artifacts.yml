@@ -39,11 +39,28 @@
     - "{{ download_dir }}"
     - "{{ extract_dir }}"
 
+# Fixed task - Use aws_s3 module instead of command to avoid credential issues
 - name: Download artifact from S3
-  command: >
-    aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
-  args:
-    creates: "{{ download_dir }}/artifact.zip"
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "{{ artifact_key }}"
+    dest: "{{ download_dir }}/artifact.zip"
+    mode: get
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  register: s3_download_result
+
+# Alternative credential method if aws_s3 module is not available
+# Uncomment and use one of these methods if needed
+# - name: Download artifact from S3 (using environment variables)
+#   command: >
+#     aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
+#   environment:
+#     AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+#     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+#     AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-1') }}"
+#   args:
+#     creates: "{{ download_dir }}/artifact.zip"
 
 - name: Unarchive the artifact
   unarchive:
