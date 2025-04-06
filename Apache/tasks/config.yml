@@ -2,6 +2,6 @@
   - name: update angular app component
     copy:
       src: src/app/app.component.html
-      dest: /var/www/html/app.html
+      dest: /var/www/html
     notify: Restart apache2
 ...
