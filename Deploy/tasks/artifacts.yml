@@ -1,5 +1,9 @@
 ---
-# Fixed task - Use aws_s3 module instead of command to avoid credential issues
+- name: Set default artifact version if not provided
+  set_fact:
+    artifact_version: "v70"
+  when: artifact_version is not defined
+
 - name: Download Angular App artifact from S3
   amazon.aws.aws_s3:
     bucket: "cn-jenkins-angular"
@@ -9,12 +13,19 @@
     region: "us-east-2"
   register: s3_download
 
+- name: Create target directory for extraction
+  file:
+    path: "/var/www/html/angular_app-{{ artifact_version }}"
+    state: directory
+    mode: '0755'
+
 - name: Extract Angular App
   command: >
     tar -xzvf /var/www/html/angular_app-{{ artifact_version }}.tar.gz
     -C /var/www/html/angular_app-{{ artifact_version }}
   args:
-    creates: "/var/www/html/angular_app-{{ artifact_version }}"
+    creates: "/var/www/html/angular_app-{{ artifact_version }}/index.html"
   when: s3_download.changed
   notify:
     - Restart apache2
+...
