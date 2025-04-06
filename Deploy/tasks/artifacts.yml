@@ -33,7 +33,15 @@
 # Ensure artifact_version is defined (dynamic or hardcoded)
 - name: Set artifact version dynamically
   set_fact:
-    artifact_version: "{{ lookup('env', 'VERSION') | default('v1.0.0') }}"  # Or set manually if needed
+    artifact_version: "{{ lookup('env', 'VERSION') | default('v1.0.0') }}"  # Default to v1.0.0 if VERSION is not found
+  debug:
+    msg: "Artifact version set to {{ artifact_version }}"
+
+# Check if artifact_version is empty and fail if necessary
+- name: Fail if artifact_version is not set
+  fail:
+    msg: "The artifact_version is not set or is empty. Please check the environment variable or set it manually."
+  when: artifact_version == ""
 
 # Create download and extract directories
 - name: Create download and extract directories
@@ -55,6 +63,8 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
   register: s3_download_result
+  debug:
+    msg: "Downloading artifact: s3://cn-jenkins-angular/artifacts/angular-app-{{ artifact_version }}.zip"
 
 # Alternative credential method if aws_s3 module is not available
 # Uncomment and use one of these methods if needed
