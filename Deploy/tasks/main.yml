@@ -2,4 +2,4 @@
 # tasks file for Deploy
 - import_tasks: artifacts.yml
 - import_tasks: symlink.yml
-- import_tasks: version-directory.yml
+- import_tasks: directory.yml

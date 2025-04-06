@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 # Ensure AWS CLI is installed (Debian/Ubuntu)
 - name: Install AWS CLI on Ubuntu/Debian
   apt:
@@ -19,6 +20,70 @@
       aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
       args:
   creates: "{{ download_dir }}/artifact.zip"
+=======
+# Ensure unzip is installed (Ubuntu/Debian)
+- name: Install unzip on Ubuntu/Debian
+  apt:
+    name: unzip
+    state: present
+  when: ansible_facts['pkg_mgr'] == "apt"
+
+# Ensure unzip is installed (RHEL/CentOS)
+- name: Install unzip on RHEL/CentOS
+  yum:
+    name: unzip
+    state: present
+  when: ansible_facts['pkg_mgr'] == "yum"
+
+# Ensure AWS CLI is installed (Ubuntu/Debian)
+- name: Install AWS CLI on Ubuntu/Debian
+  shell: |
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+  when: ansible_facts['pkg_mgr'] == "apt"
+  args:
+    creates: "/usr/local/bin/aws"
+
+# Ensure AWS CLI is installed (RHEL/CentOS)
+- name: Install AWS CLI on RHEL/CentOS
+  yum:
+    name: aws-cli
+    state: present
+  when: ansible_facts['pkg_mgr'] == "yum"
+
+- name: Create download and extract directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ download_dir }}"
+    - "{{ extract_dir }}"
+
+# Fixed task - Use aws_s3 module instead of command to avoid credential issues
+- name: Download artifact from S3
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "{{ artifact_key }}"
+    dest: "{{ download_dir }}/angular-app.zip"
+    mode: get
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  register: s3_download_result
+
+# Alternative credential method if aws_s3 module is not available
+# Uncomment and use one of these methods if needed
+# - name: Download artifact from S3 (using environment variables)
+#   command: >
+#     aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
+#   environment:
+#     AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+#     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+#     AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-1') }}"
+#   args:
+#     creates: "{{ download_dir }}/artifact.zip"
+>>>>>>> f550fc57274d9fc39238aafb33d6620eb9389569
 
 - name: Unarchive the artifact
   unarchive:
@@ -30,5 +95,12 @@
   copy:
     src: "{{ extract_dir }}/"
     dest: "{{ target_dir }}/"
+<<<<<<< HEAD
   notify: Restart apache2
 ...
+=======
+    owner: www-data
+    group: www-data
+    mode: '0755'
+  notify: Restart apache2
+>>>>>>> f550fc57274d9fc39238aafb33d6620eb9389569
