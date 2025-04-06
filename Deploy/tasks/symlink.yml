@@ -6,9 +6,10 @@
 
 - name: Update symlink
   file:
-    src: "/var/www/html/versions/{{ app_version }}/dist/angular-app"
+    src: "/var/www/html/versions/{{ artifact_version }}/dist/angular-app"
     dest: /var/www/html/current
     state: link
+  when: artifact_version is defined
 
 #- name: Save current version to file
 # copy:
