@@ -30,6 +30,12 @@
     state: present
   when: ansible_facts['pkg_mgr'] == "yum"
 
+# Ensure artifact_version is defined (dynamic or hardcoded)
+- name: Set artifact version dynamically
+  set_fact:
+    artifact_version: "{{ lookup('env', 'VERSION') | default('v1.0.0') }}"  # Or set manually if needed
+
+# Create download and extract directories
 - name: Create download and extract directories
   file:
     path: "{{ item }}"
