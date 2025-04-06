@@ -72,7 +72,4 @@
   copy:
     src: "{{ extract_dir }}/"
     dest: "{{ target_dir }}/"
-    owner: www-data
-    group: www-data
-    mode: '0755'
   notify: Restart apache2
