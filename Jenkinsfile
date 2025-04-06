@@ -1,45 +1,63 @@
-pipeline { 
+pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS-20'
-    }
-
     environment {
-        AWS_REGION = 'us-east-2'
-        AWS_CLI_HOME = "${WORKSPACE}/aws-cli"
-        PATH = "${AWS_CLI_HOME}/bin:${env.PATH}"
+        S3_BUCKET = 'cn-jenkins-angular'
+        AWS_REGION = 'us-east-2' // e.g., us-east-1
+        VERSION = "v${env.BUILD_NUMBER}"
     }
 
-    stages {
-        stage('Verify Node.js') {
+    stages{
+        stage('Install Dependencies') {
             steps {
-                sh '''
-                    node --version
-                    npm --version
-                '''
+                sh 'npm install'
             }
         }
 
-        stage('Build') {
+        stage('Build Angular App') {
             steps {
-                sh '''
-                    npm install
-                    ng build --configuration=production
-                    ls -la dist/
-                '''
+                sh 'ng build --configuration=production'
             }
         }
 
+<<<<<<< HEAD
+=======
+        stage('Create Artifact') {
+            steps {
+                script {
+                    def ARTIFACT_NAME = "angular_app-${VERSION}.tar.gz"  // Use VERSION here for consistency
+                    sh "tar -czf ${ARTIFACT_NAME} -C dist/angular_app ."
+                }
+            }
+        }
+
+        stage('Upload to S3') {
+            steps {
+                withAWS(credentials: 'aws-jenkins-credentials', region: "${AWS_REGION}") {
+                    s3Upload(
+                        file: "angular_app-${VERSION}.tar.gz",  // Use the same name as created earlier
+                        bucket: "${S3_BUCKET}", 
+                        path: "artifacts/")
+                }
+            }
+        }
+
+        stage('Deploy with Ansible') {
+            steps {
+                sh '''
+                ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=$VERSION"
+                '''
+            }
+        }
+>>>>>>> 5d449c9f643b842236fc483cedcd60047229cc89
     }
 
     post {
         success {
-            echo "Deployment successful!"
+            echo 'Deployment successful!'
         }
         failure {
-            echo "Deployment failed!"
+            echo 'Deployment failed!'
         }
     }
-
 }
