@@ -44,7 +44,7 @@
   aws_s3:
     bucket: "{{ s3_bucket }}"
     object: "{{ artifact_key }}"
-    dest: "{{ download_dir }}/artifact.zip"
+    dest: "{{ download_dir }}/angular-app.zip"
     mode: get
   vars:
     ansible_python_interpreter: /usr/bin/python3
