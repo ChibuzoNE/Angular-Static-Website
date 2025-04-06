@@ -68,8 +68,9 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-key') {
                     sh '''
+                        sudo yum install -y zip
                         aws configure set region "$AWS_REGION"
-                        # aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
+                        aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
                         # Set dynamic version (e.g., using Jenkins BUILD_NUMBER or timestamp)
                         VERSION="v1.0.${BUILD_NUMBER}"  # or use `VERSION=$(date +%Y%m%d%H%M%S)` for timestamp
 
