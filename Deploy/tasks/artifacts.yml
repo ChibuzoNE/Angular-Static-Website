@@ -70,7 +70,7 @@
 
 - name: Unarchive the artifact
   unarchive:
-    src: "{{ download_dir }}/artifact.zip"
+    src:  "/tmp/angular-app-{{ artifact_version }}.zip"
     dest: "{{ extract_dir }}"
     remote_src: yes
 
