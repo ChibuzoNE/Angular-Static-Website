@@ -20,8 +20,6 @@ pipeline {
             }
         }
 
-<<<<<<< HEAD
-=======
         stage('Create Artifact') {
             steps {
                 script {
@@ -49,7 +47,6 @@ pipeline {
                 '''
             }
         }
->>>>>>> 5d449c9f643b842236fc483cedcd60047229cc89
     }
 
     post {
