@@ -49,7 +49,7 @@
 - name: Download artifact from S3
   aws_s3:
     bucket: "cn-jenkins-angular"
-    object: "artifacts/angular-app-{{ artifact_version }}.zip"
+    object: "artifacts/angular-app-v1.0.58.zip"
     dest: "/tmp/angular-app-{{ artifact_version }}.zip"
     mode: get
   vars:
