@@ -27,25 +27,24 @@ pipeline {
         stage('Create Artifact') {
             steps {
                 script {
-                    // Detect correct dist folder dynamically
-                    def distDir = sh(script: "ls dist", returnStdout: true).trim()
+                    // Filter only directories inside dist/
+                    def distDir = sh(
+                        script: "find dist -mindepth 1 -maxdepth 1 -type d | head -n 1",
+                        returnStdout: true
+                    ).trim()
+
+                    if (!distDir || distDir == "") {
+                        error "ERROR: Could not find a valid build directory inside dist/"
+                    }
+
                     def artifactName = "angular_app-${VERSION}.tar.gz"
                     env.ARTIFACT_NAME = artifactName
                     env.DIST_DIR = distDir
 
-                    // Log detected folder
-                    echo "Using dist directory: dist/${distDir}"
+                    echo "Using dist directory: ${distDir}"
 
-                    // Check that it exists
-                    sh """
-                        if [ ! -d "dist/${distDir}" ]; then
-                          echo "ERROR: dist/${distDir} not found"
-                          exit 1
-                        fi
-                    """
-
-                    // Create the artifact
-                    sh "tar -czf ${artifactName} -C dist/${distDir} ."
+                    // Create the artifact from that folder
+                    sh "tar -czf ${artifactName} -C ${distDir} ."
                 }
             }
         }
