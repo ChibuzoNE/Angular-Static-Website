@@ -78,4 +78,5 @@
   copy:
     src: "{{ extract_dir }}/"
     dest: "{{ target_dir }}/"
+    remote_src: yes
   notify: Restart apache2
