@@ -1,4 +1,4 @@
-pipeline { 
+pipeline {
     agent any
 
     tools {
@@ -51,7 +51,7 @@ pipeline {
 
         stage('Upload to S3') {
             steps {
-                withAWS(credentials: 'aws-jenkins-credentials', region: "${AWS_REGION}") {
+                withAWS(credentials: 'aws-key', region: "${AWS_REGION}") {
                     s3Upload(
                         file: "${ARTIFACT_NAME}",
                         bucket: "${S3_BUCKET}", 
