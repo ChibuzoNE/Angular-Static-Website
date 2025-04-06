@@ -60,14 +60,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy with Ansible') {
-            steps {
-                sh '''
-                ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=${VERSION}"
-                '''
-            }
-        }
     }
 
     post {
