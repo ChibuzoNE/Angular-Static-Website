@@ -1,17 +1,17 @@
-pipeline {
+pipeline { 
     agent any
 
-        tools {
+    tools {
         nodejs 'NodeJS-20'
     }
 
     environment {
         S3_BUCKET = 'cn-jenkins-angular'
-        AWS_REGION = 'us-east-2' // e.g., us-east-1
+        AWS_REGION = 'us-east-2'
         VERSION = "v${env.BUILD_NUMBER}"
     }
 
-    stages{
+    stages {
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
@@ -27,8 +27,25 @@ pipeline {
         stage('Create Artifact') {
             steps {
                 script {
-                    def ARTIFACT_NAME = "angular_app-${VERSION}.tar.gz"  // Use VERSION here for consistency
-                    sh "tar -czf ${ARTIFACT_NAME} -C dist/angular_app ."
+                    // Detect correct dist folder dynamically
+                    def distDir = sh(script: "ls dist", returnStdout: true).trim()
+                    def artifactName = "angular_app-${VERSION}.tar.gz"
+                    env.ARTIFACT_NAME = artifactName
+                    env.DIST_DIR = distDir
+
+                    // Log detected folder
+                    echo "Using dist directory: dist/${distDir}"
+
+                    // Check that it exists
+                    sh """
+                        if [ ! -d "dist/${distDir}" ]; then
+                          echo "ERROR: dist/${distDir} not found"
+                          exit 1
+                        fi
+                    """
+
+                    // Create the artifact
+                    sh "tar -czf ${artifactName} -C dist/${distDir} ."
                 }
             }
         }
@@ -37,9 +54,10 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-jenkins-credentials', region: "${AWS_REGION}") {
                     s3Upload(
-                        file: "angular_app-${VERSION}.tar.gz",  // Use the same name as created earlier
+                        file: "${ARTIFACT_NAME}",
                         bucket: "${S3_BUCKET}", 
-                        path: "artifacts/")
+                        path: "artifacts/"
+                    )
                 }
             }
         }
@@ -47,7 +65,7 @@ pipeline {
         stage('Deploy with Ansible') {
             steps {
                 sh '''
-                ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=$VERSION"
+                ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=${VERSION}"
                 '''
             }
         }
