@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+        tools {
+        nodejs 'NodeJS-20'
+    }
+
     environment {
         S3_BUCKET = 'cn-jenkins-angular'
         AWS_REGION = 'us-east-2' // e.g., us-east-1
