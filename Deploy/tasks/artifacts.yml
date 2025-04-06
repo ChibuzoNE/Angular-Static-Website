@@ -3,15 +3,18 @@
 - name: Download Angular App artifact from S3
   amazon.aws.aws_s3:
     bucket: "cn-jenkins-angular"
-    object: "artifacts/{{ artifact_version }}.tar.gz"
-    dest: "/var/www/html/"
-    profile: default  # Use the default profile
+    object: "artifacts/angular_app-{{ artifact_version }}.tar.gz"
+    dest: "/var/www/html/angular_app-{{ artifact_version }}.tar.gz"
+    profile: default
     region: "us-east-2"
   register: s3_download
 
 - name: Extract Angular App
-  command:
-    cmd: "tar -xzvf /var/www/html/angular_app-v27.tar.gz -C /var/www/html/"
+  command: >
+    tar -xzvf /var/www/html/angular_app-{{ artifact_version }}.tar.gz
+    -C /var/www/html/angular_app-{{ artifact_version }}
+  args:
+    creates: "/var/www/html/angular_app-{{ artifact_version }}"
   when: s3_download.changed
   notify:
-  - Restart apache2
+    - Restart apache2
