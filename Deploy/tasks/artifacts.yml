@@ -1,20 +1,34 @@
 ---
-- name: Download artifact from S3 or Jenkins
-  get_url:
-    url: "http://jenkins-master:8080/job/angular-app/{{ deploy_version }}/artifact/dist/angular-app-{{ deploy_version }}.tar.gz"
-    dest: "/tmp/angular-app-{{ deploy_version }}.tar.gz"
-    when: rollback_version != ''
-    ignore_errors: yes
+# Ensure AWS CLI is installed (Debian/Ubuntu)
+- name: Install AWS CLI on Ubuntu/Debian
+  apt:
+    name: awscli
+      state: present
+    when: ansible_facts['pkg_mgr'] == "apt"
 
-- name: Extract artifact
+- name: Create download and extract directories
+  file:
+      path: "{{ item }}"
+      state: directory
+  loop:
+      - "{{ download_dir }}"
+      - "{{ extract_dir }}"
+
+- name: Download artifact from S3
+  command: >
+      aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
+      args:
+  creates: "{{ download_dir }}/artifact.zip"
+
+- name: Unarchive the artifact
   unarchive:
-    src: "/tmp/angular-app-{{ app_version }}.tar.gz"
-    dest: "/var/www/html/versions/{{ app_version }}"
+    src: "{{ download_dir }}/artifact.zip"
+    dest: "{{ extract_dir }}"
     remote_src: yes
 
-- name: Copy new Angular build from Jenkins workspace
+- name: Copy extracted files to Apache root
   copy:
-    src: "{{ lookup('env', 'WORKSPACE') }}/dist/"
-    dest: "{{ versions_path }}/{{ app_version }}/"
-  when: rollback_version == ''
+    src: "{{ extract_dir }}/"
+    dest: "{{ target_dir }}/"
+  notify: Restart apache2
 ...

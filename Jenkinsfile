@@ -69,7 +69,21 @@ pipeline {
                 withAWS(credentials: 'aws-key') {
                     sh '''
                         aws configure set region "$AWS_REGION"
-                        aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
+                        # aws s3 cp dist/temp-app/browser/ s3://cn-jenkins-angular/ --recursive
+                        # Set dynamic version (e.g., using Jenkins BUILD_NUMBER or timestamp)
+                        VERSION="v1.0.${BUILD_NUMBER}"  # or use `VERSION=$(date +%Y%m%d%H%M%S)` for timestamp
+
+                        # Define ZIP and S3 path
+                        ZIP_FILE="angular-app-${VERSION}.zip"
+                        ZIP_PATH="dist/$ZIP_FILE"
+                        S3_DEST="s3://cn-jenkins-angular/artifacts/$ZIP_FILE"
+
+                        # Zip the Angular build
+                        cd dist/temp-app/browser && zip -r "../../$ZIP_FILE" . && cd -
+
+                        # Upload the ZIP to S3
+                        aws s3 cp "$ZIP_PATH" "$S3_DEST"
+
                         echo "Deployment complete!"
                     '''
                 }
