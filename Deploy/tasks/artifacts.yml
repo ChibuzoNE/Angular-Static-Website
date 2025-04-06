@@ -74,6 +74,30 @@
     dest: "{{ extract_dir }}"
     remote_src: yes
 
+- name: Check if /var/www/html exists
+  stat:
+    path: /var/www/html
+  register: html_stat
+
+- name: Remove /var/www/html if it exists as a file
+  file:
+    path: /var/www/html
+    state: absent
+  when: html_stat.stat.exists and not html_stat.stat.isdir
+
+- name: Create /var/www/html as a directory
+  file:
+    path: /var/www/html
+    state: directory
+  when: not html_stat.stat.exists or html_stat.stat.isdir
+
+- name: Copy extracted files to /var/www/html
+  copy:
+    src: "{{ extract_dir }}/"
+    dest: "/var/www/html/"
+    remote_src: yes
+  notify:
+    - Restart apache2
 - name: Copy extracted files to Apache root
   copy:
     src: "{{ extract_dir }}/"
