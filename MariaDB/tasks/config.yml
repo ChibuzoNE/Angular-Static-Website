@@ -19,7 +19,4 @@
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
-  rescue:
-    - name: Handle error gracefully if sample data import fails
-      debug:
-        msg: "Sample data import failed, but continuing with the playbook."
+  ignore_errors: true
