@@ -30,7 +30,7 @@
     state: present
   when: ansible_facts['pkg_mgr'] == "yum"
 
-  # Define required directories
+# Define required directories
 - name: Set download and extract directories
   set_fact:
     download_dir: "/tmp/angular_downloads"
@@ -39,7 +39,11 @@
 # Ensure artifact_version is defined (dynamic or hardcoded)
 - name: Set artifact version dynamically
   set_fact:
-    artifact_version: "{{ lookup('env', 'VERSION') | default('v1.0.0') }}"  # Or set manually if needed
+    artifact_version: "{{ lookup('env', 'VERSION') | default('v1.0.0') }}"
+    artifact_key: "artifacts/angular-app-{{ artifact_version }}.zip"
+    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    aws_region: "{{ lookup('env', 'AWS_DEFAULT_REGION') | default('us-east-2') }}"
 
 # Create download and extract directories
 - name: Create download and extract directories
@@ -51,19 +55,7 @@
     - "{{ download_dir }}"
     - "{{ extract_dir }}"
 
-# Fixed task - Use aws_s3 module instead of command to avoid credential issues
-#- name: Download artifact from S3
-#  aws_s3:
-#    bucket: "cn-jenkins-angular"
-#    object: "artifacts/angular-app-v1.0.58.zip"
-#    key: "artifacts/{{ artifact_name }}"
-#    file: "{{ download_path }}"
-#    dest: "/tmp/angular-app-{{ artifact_version }}.zip"
-#    mode: get
-#  vars:
-#    ansible_python_interpreter: /usr/bin/python3
-#  register: s3_download_result
-
+# Download artifact from S3 (using environment variables)
 - name: Download artifact from S3 (using environment variables)
   command: >
     aws s3 cp s3://cn-jenkins-angular/{{ artifact_key }} {{ download_dir }}/artifact.zip
@@ -71,7 +63,7 @@
   environment:
     AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
-    AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-2') }}"
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
   args:
     creates: "{{ download_dir }}/artifact.zip"
 
@@ -80,20 +72,12 @@
     msg: "Artifact download failed!"
   when: download_result is defined and download_result.rc != 0
 
-
-#- name: Unarchive the artifact
-#  unarchive:
-#    src:  "/tmp/angular-app-{{ artifact_version }}.zip"
-#    dest: "{{ extract_dir }}"
-#    remote_src: yes
-
 - name: Extract artifact
   unarchive:
-    src: "{{ download_path }}"
+    src: "{{ download_dir }}/artifact.zip"
     dest: /tmp/angular-app
     remote_src: yes
-    extra_opts: ["-q"]  # Quiet mode for cleaner output
-  when: artifact_stat.stat.exists
+    extra_opts: ["-q"]
 
 - name: Check if /var/www/html exists
   stat:
@@ -119,9 +103,3 @@
     remote_src: yes
   notify:
     - Restart apache2
-- name: Copy extracted files to Apache root
-  copy:
-    src: "{{ extract_dir }}/"
-    dest: /var/www/html/
-    remote_src: yes
-  notify: Restart apache2
