@@ -94,18 +94,21 @@ pipeline {
         }
 
         stage('Deploy with Ansible') {
-            steps {
+        steps {
             sshagent(credentials: ['ansible_ssh_key']) {
-                sh '''
-                    ssh -o StrictHostKeyChecking=no ec2-user@172.31.20.58 "echo $ANSIBLE_VAULT_PASSWORD > .vault_pass && \
-                    chmod 600 .vault_pass && \
-                    ansible-playbook -i hosts.ini angular-app.yml \
-                        --extra-vars artifact_version=${ARTIFACT_VERSION} \
-                        --vault-password-file .vault_pass && \
-                    rm -f .vault_pass"
-                '''
-                }
+                sh """
+                    ssh -o StrictHostKeyChecking=no ec2-user@172.31.20.58 \\
+                    'echo "${ANSIBLE_VAULT_PASSWORD}" > .vault_pass && \\
+                    chmod 600 .vault_pass && \\
+                    ansible-playbook -i /home/ec2-user/Angular-Static-Website/hosts.ini \\
+                                    /home/ec2-user/Angular-Static-Website/angular-app.yml \\
+                                    --extra-vars artifact_version=${ARTIFACT_VERSION} \\
+                                    --vault-password-file .vault_pass && \\
+                    rm -f .vault_pass'
+                """
             }
+    }
+
         }
     }
 
