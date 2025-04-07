@@ -26,9 +26,3 @@
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
-
-  rescue:
-    - name: Log import failure
-      debug:
-        msg: "Sample data import failed or file not found"
-      changed_when: false
