@@ -8,7 +8,7 @@
 - name: Delete all users from the users table
   community.mysql.mysql_query:
     login_user: root
-    login_password: SuperSecurePass456
+    login_password: "{{ mariadb_password }}"
     login_db: angular_app_db
     query: "DELETE FROM users;"
 
