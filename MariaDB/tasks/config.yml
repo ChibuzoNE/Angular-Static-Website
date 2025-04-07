@@ -46,9 +46,10 @@
       when: index_check.query_result[0].index_exists > 0
 
     - name: Import sample data
-      community.mysql.mysql_db:
+      ansible.builtin.mysql_db:
         name: "{{ mariadb_database }}"
         state: import
         target: /tmp/sample_data.sql
         login_unix_socket: /var/run/mysqld/mysqld.sock
+      ignore_errors: true
   when: table_check.query_result[0].table_exists == 1 and sample_data_file.stat.exists

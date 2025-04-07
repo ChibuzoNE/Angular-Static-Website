@@ -6,7 +6,7 @@ CREATE INDEX idx_username ON users(username);
 SET @index_exists := (
   SELECT COUNT(1)
   FROM information_schema.statistics
-  WHERE table_schema = DATABASE()
+  WHERE table_schema = "myapp_db"
     AND table_name = 'users'
     AND index_name = 'idx_username'
 );
