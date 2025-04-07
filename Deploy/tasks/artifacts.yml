@@ -53,7 +53,7 @@
 
 # Fixed task - Use aws_s3 module instead of command to avoid credential issues
 - name: Download artifact from S3
-  amazon.aws.aws_s3:
+  aws_s3:
     bucket: "cn-jenkins-angular"
     object: "artifacts/angular-app-v1.0.58.zip"
     dest: "/tmp/angular-app-{{ artifact_version }}.zip"
