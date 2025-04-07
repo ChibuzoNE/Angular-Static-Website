@@ -1,3 +1,4 @@
 ---
 # defaults file for MariaDB
 mariadb_database: angular_app_db
+mariadb_user: angular_user
