@@ -1,19 +1,20 @@
 - name: Create MariaDB database
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: Create MariaDB user
-  mysql_user:
+  community.mysql.mysql_db:
     name: "{{ mariadb_username }}"
     password: "{{ mariadb_password }}"
-    priv: "*.*:ALL"
+    priv: "{{ mariadb_db_name }}.*:ALL"
+    host: "{{ mariadb_host }}"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: Import sample data (if available)
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: import
     target: /tmp/sample_data.sql

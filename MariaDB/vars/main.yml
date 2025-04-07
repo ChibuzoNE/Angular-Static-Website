@@ -4,3 +4,4 @@
 ---
 mariadb_db_name: "myapp_db"
 mariadb_host: "localhost"
+mariadb_port: 3306
