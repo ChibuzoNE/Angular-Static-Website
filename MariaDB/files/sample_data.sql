@@ -10,5 +10,3 @@ INSERT INTO users (username, email) VALUES
 ('sam_k', 'sam@example.com'),
 ('harry_potter', 'harry@example.com'),
 ('penny_jakes', 'penny@example.com');
--- Add an index for better query performance
-CREATE INDEX idx_username ON users(username);
