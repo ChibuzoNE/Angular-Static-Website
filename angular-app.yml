@@ -5,6 +5,8 @@
 
   vars_files:
     - group_vars/all/mariadb_secrets.yml
+    - amazon.aws
+    - community.aws
 
 
   roles:
