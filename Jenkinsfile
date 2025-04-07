@@ -5,6 +5,10 @@ pipeline {
         nodejs 'NodeJS-20'
     }
 
+    parameters {
+        string(name: 'ARTIFACT_VERSION', defaultValue: 'v1.0.120', description: 'Version number to deploy')
+    }
+
     environment {
         AWS_REGION = 'us-east-2'
         AWS_CLI_HOME = "${WORKSPACE}/aws-cli"
@@ -103,7 +107,7 @@ pipeline {
                     chmod 600 .vault_pass && \\
                     ansible-playbook -i /home/ec2-user/Angular-Static-Website/hosts.ini \\
                                     /home/ec2-user/Angular-Static-Website/angular-app.yml \\
-                                    --extra-vars artifact_version=${ARTIFACT_VERSION} \\
+                                    --extra-vars artifact_version=${params.ARTIFACT_VERSION} \\
                                     --vault-password-file .vault_pass && \\
                     rm -f .vault_pass'
                 """
