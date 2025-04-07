@@ -4,7 +4,8 @@
   become: yes
 
   vars_files:
-    - vars/secrets.yml  # Encrypted file
+    - vars/secrets.yml
+    - vars/main.yml
 
   roles:
   - Apache
