@@ -18,4 +18,3 @@
   stat:
     path: /tmp/sample_data.sql
   register: sample_data_file
-

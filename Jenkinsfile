@@ -6,7 +6,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'ARTIFACT_VERSION', defaultValue: 'v1.0.120', description: 'Version number to deploy')
+        string(name: 'ARTIFACT_VERSION', defaultValue: 'v1.0.122', description: 'Version number to deploy')
     }
 
     environment {
