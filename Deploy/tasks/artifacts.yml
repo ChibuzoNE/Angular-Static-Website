@@ -30,6 +30,12 @@
     state: present
   when: ansible_facts['pkg_mgr'] == "yum"
 
+  # Define required directories
+- name: Set download and extract directories
+  set_fact:
+    download_dir: "/tmp/angular_downloads"
+    extract_dir: "/tmp/angular_extract"
+
 # Ensure artifact_version is defined (dynamic or hardcoded)
 - name: Set artifact version dynamically
   set_fact:
