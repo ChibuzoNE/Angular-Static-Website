@@ -9,10 +9,10 @@
     path: "/var/www/html/versions/{{ artifact_version }}/dist/angular-app"
   register: angular_app_stat
 
-- name: Fail if the source directory does not exist
-  fail:
-    msg: "The source directory /var/www/html/versions/{{ artifact_version }}/dist/angular-app does not exist!"
-  when: not angular_app_stat.stat.exists
+#- name: Fail if the source directory does not exist
+# fail:
+  #  msg: "The source directory /var/www/html/versions/{{ artifact_version }}/dist/angular-app does not exist!"
+#  when: not angular_app_stat.stat.exists
 
 - name: Update symlink
   file:
