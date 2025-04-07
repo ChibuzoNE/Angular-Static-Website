@@ -1,21 +1,70 @@
 - name: Create MariaDB database
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: Create MariaDB user
-  mysql_user:
-    name: "{{ mariadb_user }}"
+  community.mysql.mysql_user:
+    name: "{{ mariadb_username }}"
     password: "{{ mariadb_password }}"
-    priv: "{{ mariadb_database }}.*:ALL"
-    host: localhost
+    priv: "{{ mariadb_db_name }}.*:ALL"
+    host: "{{ mariadb_host }}"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
+<<<<<<< HEAD
 - name: Import sample data (if available)
   mysql_db:
     name: "{{ mariadb_database }}"
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
+=======
+- name: Ensure sample data exists
+  block:
+    - name: Check local SQL file
+      ansible.builtin.stat:
+        path: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
+      register: local_sql_file
+    - name: Copy if exists locally
+      ansible.builtin.copy:
+        src: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
+        dest: /tmp/sample_data.sql
+        mode: '0644'
+      when: local_sql_file.stat.exists
+    - name: Create default data if no file exists
+      ansible.builtin.copy:
+        content: |
+          CREATE TABLE IF NOT EXISTS contacts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100),
+            email VARCHAR(100)
+          );
+          INSERT INTO contacts (name, email) VALUES
+          ('Default User', 'user@example.com');
+        dest: /tmp/sample_data.sql
+        mode: '0644'
+      when: not local_sql_file.stat.exists
+  always:
+    - name: Import data
+      community.mysql.mysql_db:
+        name: "{{ mariadb_database }}"
+        state: import
+        target: /tmp/sample_data.sql
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> refs/remotes/origin/main
