@@ -35,8 +35,3 @@
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
-<<<<<<< HEAD
-...
-=======
-  when: sample_data_file.stat.exists
->>>>>>> 7d5139ab01d73252e30807cba21d27c0bcb43544

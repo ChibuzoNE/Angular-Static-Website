@@ -1,13 +1,14 @@
--- Create a simple table
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Add this before creating the index
+SET @index_exists := (
+  SELECT COUNT(1)
+  FROM information_schema.statistics
+  WHERE table_schema = DATABASE()
+    AND table_name = 'users'
+    AND index_name = 'idx_username'
 );
 
--- Insert some sample data
-INSERT INTO users (name, email) VALUES
-('Alice', 'alice@example.com'),
-('Bob', 'bob@example.com'),
-('Charlie', 'charlie@example.com');
+-- Conditionally create index
+SET @create_index := IF(@index_exists = 0, 'CREATE INDEX idx_username ON users(username)', 'SELECT "Index already exists"');
+PREPARE stmt FROM @create_index;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
