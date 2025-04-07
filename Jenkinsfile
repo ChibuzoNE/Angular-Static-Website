@@ -1,5 +1,7 @@
 pipeline { 
-    agent any
+    agent{
+        ANSIBLE_HOST = "172.31.20.58"
+    }
 
     tools {
         nodejs 'NodeJS-20'
@@ -91,6 +93,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy with Ansible') {
+        steps {
+            sh '''
+            ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=$VERSION"
+            '''
+            }
+        }
+
     }
 
     post {
