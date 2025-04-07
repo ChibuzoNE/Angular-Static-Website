@@ -1,12 +1,13 @@
--- Create a sample database table
+-- Create a simple table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL,
+    name VARCHAR(100),
+    email VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
--- Insert sample records
-INSERT INTO users (username, email) VALUES
-('john_doe', 'john@example.com'),
-('jane_smith', 'jane@example.com'),
-('alex_wong', 'alex@example.com');
+
+-- Insert some sample data
+INSERT INTO users (name, email) VALUES
+('Alice', 'alice@example.com'),
+('Bob', 'bob@example.com'),
+('Charlie', 'charlie@example.com');
