@@ -7,7 +7,7 @@
 
 - name: Create MariaDB user
   community.mysql.mysql_user:
-    name: "{{ mariadb_username }}"
+    name: "{{ mariadb_user }}"
     password: "{{ mariadb_password }}"
     priv: "{{ mariadb_db_name }}.*:ALL"
     host: "{{ mariadb_host }}"
