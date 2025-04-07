@@ -56,27 +56,38 @@
   aws_s3:
     bucket: "cn-jenkins-angular"
     object: "artifacts/angular-app-v1.0.58.zip"
+    key: "artifacts/{{ artifact_name }}"
+    file: "{{ download_path }}"
     dest: "/tmp/angular-app-{{ artifact_version }}.zip"
     mode: get
   vars:
     ansible_python_interpreter: /usr/bin/python3
   register: s3_download_result
 
-#- name: Download artifact from S3 (using environment variables)
-#  command: >
-#    aws s3 cp s3://{{ s3_bucket }}/{{ artifact_key }} {{ download_dir }}/artifact.zip
-#  environment:
-#    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
-#    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
-#    AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-2') }}"
-#  args:
-#    creates: "{{ download_dir }}/artifact.zip"
+- name: Download artifact from S3 (using environment variables)
+  command: >
+    aws s3 cp s3://"cn-jenkins-angular"/{{ artifact_key }} {{ download_dir }}/artifact.zip
+  when: download_result is failed
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-2') }}"
+  args:
+    creates: "{{ download_dir }}/artifact.zip"
 
-- name: Unarchive the artifact
+#- name: Unarchive the artifact
+#  unarchive:
+#    src:  "/tmp/angular-app-{{ artifact_version }}.zip"
+#    dest: "{{ extract_dir }}"
+#    remote_src: yes
+
+- name: Extract artifact
   unarchive:
-    src:  "/tmp/angular-app-{{ artifact_version }}.zip"
-    dest: "{{ extract_dir }}"
+    src: "{{ download_path }}"
+    dest: /tmp/angular-app
     remote_src: yes
+    extra_opts: ["-q"]  # Quiet mode for cleaner output
+  when: artifact_stat.stat.exists
 
 - name: Check if /var/www/html exists
   stat:
