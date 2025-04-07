@@ -10,6 +10,7 @@ pipeline {
         AWS_CLI_HOME = "${WORKSPACE}/aws-cli"
         PATH = "${AWS_CLI_HOME}/bin:${env.PATH}"
         VERSION = "v${env.BUILD_NUMBER}"
+        ANSIBLE_VAULT_PASSWORD = credentials('ansible-vault-secret')
     }
 
     stages {
@@ -95,8 +96,13 @@ pipeline {
         stage('Deploy with Ansible') {
         steps {
             sh '''
-            ansible-playbook -i hosts.ini angular-app.yml --extra-vars "artifact_version=$VERSION"
-            '''
+                echo "$ANSIBLE_VAULT_PASSWORD" > .vault_pass
+                chmod 600 .vault_pass
+                ansible-playbook -i hosts.ini angular-app.yml \
+                    --extra-vars artifact_version=${ARTIFACT_VERSION} \
+                    --vault-password-file .vault_pass
+                rm -f .vault_pass
+                '''
             }
         }
 
