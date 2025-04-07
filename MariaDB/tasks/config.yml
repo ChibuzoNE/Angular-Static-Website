@@ -19,4 +19,3 @@
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
-  ignore_errors: true
