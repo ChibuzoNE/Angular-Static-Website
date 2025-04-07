@@ -62,16 +62,6 @@
     ansible_python_interpreter: /usr/bin/python3
   register: s3_download_result
 
-- name: Download artifact from S3
-  community.aws.aws_s3:
-    bucket: "cn-jenkins-angular"
-    object: "artifacts/angular-app-v1.0.58.zip"
-    dest: "/tmp/angular-app-{{ artifact_version }}.zip"
-    mode: get
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
-  register: s3_download_result
-
 
 #- name: Download artifact from S3 (using environment variables)
 #  command: >
