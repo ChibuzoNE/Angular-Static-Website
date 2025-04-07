@@ -13,23 +13,30 @@
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
- # Step 0: Copy sample data file to the target host if not exists
-- name: Copy sample data file to target server
-  copy:
-    src: //home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
+- name: Check for existing sample data
+  ansible.builtin.stat:
+  path: /tmp/sample_data.sql
+  register: sample_data_check
+
+# Step 0: Copy sample data file to the target host if not exists
+- name: Copy sample data (if missing)
+  ansible.builtin.copy:
+    src: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
     dest: /tmp/sample_data.sql
     mode: '0644'
-  when: not sample_data_file.stat.exists
+  when: not sample_data_check.stat.exists
+  register: copy_task
 
-
-- name: Check if sample data file exists
-  stat:
+- name: Verify SQL file exists
+  ansible.builtin.stat:
     path: /tmp/sample_data.sql
-  register: sample_data_file
-
-- name: Import sample data (if available)
+  register: sample_data_verify
+  always_run: yes  # Critical for proper validation
+  
+- name: Import sample data
   community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: sample_data_verify.stat.exists
