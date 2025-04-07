@@ -6,10 +6,9 @@
 
 - name: Create MariaDB user
   mysql_user:
-    name: "{{ mariadb_user }}"
+    name: "{{ mariadb_username }}"
     password: "{{ mariadb_password }}"
-    priv: "{{ mariadb_database }}.*:ALL"
-    host: localhost
+    priv: "*.*:ALL"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
