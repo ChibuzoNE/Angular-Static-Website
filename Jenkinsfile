@@ -18,6 +18,12 @@ pipeline {
     }
 
     stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ChibuzoNE/Angular-Static-Website.git'
+            }
+        }
         stage('Verify Node.js') {
             steps {
                 sh '''
