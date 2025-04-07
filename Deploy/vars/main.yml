@@ -7,4 +7,4 @@ versions_path: /var/www/versions
 s3_bucket: "cn-jenkins-angular"
 download_dir: "/tmp/angular"
 artifact_version: "{{ artifact_version }}"
-
+artifact_key: {{ artifact_key }}
