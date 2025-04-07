@@ -6,4 +6,5 @@ mariadb_db_name: "myapp_db"
 mariadb_username: "angular_user"
 mariadb_host: "localhost"
 mariadb_port: 3306
+ansible_python_interpreter: /usr/bin/python3
 ...
