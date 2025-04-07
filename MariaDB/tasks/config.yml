@@ -14,25 +14,41 @@
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
-# Step 0: Check if sample data file already exists on the target
-- name: Check if sample data file exists
+- name: Ensure sample data file exists
   stat:
     path: /tmp/sample_data.sql
   register: sample_data_file
 
-# Step 1: Copy sample data file if it doesn't already exist
-- name: Copy sample data file to target server
-  copy:
-    src: files/sample_data.sql
-    dest: /tmp/sample_data.sql
-    mode: '0644'
-  when: not sample_data_file.stat.exists
-
-# Step 2: Import sample data into the database
-- name: Import sample data
-  community.mysql.mysql_db:
-    name: "{{ mariadb_database }}"
-    state: import
-    target: /tmp/sample_data.sql
+- name: Check if users table exists
+  community.mysql.mysql_query:
+    query: "SELECT COUNT(*) AS table_exists FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{{ mariadb_database }}' AND table_name = 'users'"
     login_unix_socket: /var/run/mysqld/mysqld.sock
-  when: users_table_check.query_result[0] is not defined
+  register: table_check
+
+- name: Process sample data import
+  block:
+    - name: Check for existing index
+      community.mysql.mysql_query:
+        query: |
+          SELECT COUNT(*) AS index_exists 
+          FROM INFORMATION_SCHEMA.STATISTICS 
+          WHERE table_schema = '{{ mariadb_database }}' 
+          AND table_name = 'users' 
+          AND index_name = 'idx_username'
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      register: index_check
+
+    - name: Modify SQL file if index exists
+      replace:
+        path: /tmp/sample_data.sql
+        regexp: '^CREATE INDEX idx_username ON users\(username\)'
+        replace: '-- Index already exists'
+      when: index_check.query_result[0].index_exists > 0
+
+    - name: Import sample data
+      community.mysql.mysql_db:
+        name: "{{ mariadb_database }}"
+        state: import
+        target: /tmp/sample_data.sql
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: table_check.query_result[0].table_exists == 1 and sample_data_file.stat.exists

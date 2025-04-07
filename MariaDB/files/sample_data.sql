@@ -1,3 +1,7 @@
+-- At the top of your sample_data.sql
+DROP INDEX IF EXISTS idx_username ON users;
+CREATE INDEX idx_username ON users(username);
+
 -- Add this before creating the index
 SET @index_exists := (
   SELECT COUNT(1)
