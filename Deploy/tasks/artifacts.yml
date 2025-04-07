@@ -70,7 +70,7 @@
    environment:
      AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
      AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
-     AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-1') }}"
+     AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-2') }}"
    args:
      creates: "{{ download_dir }}/artifact.zip"
 
