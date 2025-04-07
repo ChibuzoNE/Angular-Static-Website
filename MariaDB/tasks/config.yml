@@ -1,3 +1,4 @@
+---
 - name: Create MariaDB database
   community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
@@ -13,57 +14,24 @@
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
+# Step 0: Copy sample data file to the target host if not exists
+- name: Copy sample data file to target server
+  copy:
+    src: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
+    dest: /tmp/sample_data.sql
+    mode: '0644'
+  when: not sample_data_file.stat.exists
+
+
+- name: Check if sample data file exists
+  stat:
+    path: /tmp/sample_data.sql
+  register: sample_data_file
+
 - name: Import sample data (if available)
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
-
-- name: Ensure sample data exists
-  block:
-    - name: Check local SQL file
-      ansible.builtin.stat:
-        path: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
-      register: local_sql_file
-    - name: Copy if exists locally
-      ansible.builtin.copy:
-        src: /home/ec2-user/Angular-Static-Website/sample-data/contact-data.sql
-        dest: /tmp/sample_data.sql
-        mode: '0644'
-      when: local_sql_file.stat.exists
-    - name: Create default data if no file exists
-      ansible.builtin.copy:
-        content: |
-          CREATE TABLE IF NOT EXISTS contacts (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100),
-            email VARCHAR(100)
-          );
-          INSERT INTO contacts (name, email) VALUES
-          ('Default User', 'user@example.com');
-        dest: /tmp/sample_data.sql
-        mode: '0644'
-      when: not local_sql_file.stat.exists
-  always:
-    - name: Import data
-      community.mysql.mysql_db:
-        name: "{{ mariadb_database }}"
-        state: import
-        target: /tmp/sample_data.sql
-        login_unix_socket: /var/run/mysqld/mysqld.sock
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+...
