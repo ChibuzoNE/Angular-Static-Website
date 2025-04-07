@@ -1,8 +1,4 @@
 ---
-- name: Set default artifact_version if not defined
-  set_fact:
-    artifact_version: "latest"
-  when: artifact_version is not defined
 # Ensure unzip is installed (Ubuntu/Debian)
 - name: Install unzip on Ubuntu/Debian
   apt:
