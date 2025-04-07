@@ -1,7 +1,5 @@
 pipeline { 
-    agent{
-        ANSIBLE_HOST = "172.31.20.58"
-    }
+    agent any
 
     tools {
         nodejs 'NodeJS-20'
