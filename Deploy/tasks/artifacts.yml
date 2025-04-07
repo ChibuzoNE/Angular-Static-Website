@@ -67,13 +67,18 @@
 - name: Download artifact from S3 (using environment variables)
   command: >
     aws s3 cp s3://"cn-jenkins-angular"/{{ artifact_key }} {{ download_dir }}/artifact.zip
-  when: download_result is failed
+
   environment:
     AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
     AWS_DEFAULT_REGION: "{{ aws_region | default('us-east-2') }}"
   args:
     creates: "{{ download_dir }}/artifact.zip"
+    
+- name: Handle download failure
+  debug:
+    msg: "Artifact download failed!"
+  when: download_result is defined and download_result.rc != 0
 
 #- name: Unarchive the artifact
 #  unarchive:
