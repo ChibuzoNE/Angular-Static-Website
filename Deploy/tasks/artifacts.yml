@@ -60,6 +60,9 @@
     file: "{{ download_path }}"
     dest: "/tmp/angular-app-{{ artifact_version }}.zip"
     mode: get
+    region: "{{ aws_region | default('us-east-2') }}"
+    access_key: "{{ aws_access_key }}"
+    secret_key: "{{ aws_secret_key }}"
   vars:
     ansible_python_interpreter: /usr/bin/python3
   register: s3_download_result
