@@ -8,7 +8,6 @@
     - amazon.aws
     - community.aws
 
-
   roles:
   - Apache
   - Deploy

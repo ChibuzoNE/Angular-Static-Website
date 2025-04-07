@@ -1,8 +1,12 @@
-pipeline { 
+pipeline {
     agent any
 
     tools {
         nodejs 'NodeJS-20'
+    }
+
+    parameters {
+        string(name: 'ARTIFACT_VERSION', defaultValue: 'v1', description: 'Version number to deploy')
     }
 
     environment {
@@ -95,17 +99,21 @@ pipeline {
 
         stage('Deploy with Ansible') {
         steps {
-            sh '''
-                echo "$ANSIBLE_VAULT_PASSWORD" > .vault_pass
-                chmod 600 .vault_pass
-                ansible-playbook -i hosts.ini angular-app.yml \
-                    --extra-vars artifact_version=${ARTIFACT_VERSION} \
-                    --vault-password-file .vault_pass
-                rm -f .vault_pass
-                '''
+            sshagent(credentials: ['ansible_ssh_key']) {
+                sh """
+                    ssh -o StrictHostKeyChecking=no ec2-user@172.31.20.58 \\
+                    'echo "${ANSIBLE_VAULT_PASSWORD}" > .vault_pass && \\
+                    chmod 600 .vault_pass && \\
+                    ansible-playbook -i /home/ec2-user/Angular-Static-Website/hosts.ini \\
+                                    /home/ec2-user/Angular-Static-Website/angular-app.yml \\
+                                    --extra-vars artifact_version=${params.ARTIFACT_VERSION} \\
+                                    --vault-password-file .vault_pass && \\
+                    rm -f .vault_pass'
+                """
             }
-        }
+    }
 
+        }
     }
 
     post {
@@ -113,8 +121,7 @@ pipeline {
             echo "Deployment successful!"
         }
         failure {
-            echo "Deployment failed!"
+            echo "Deployment failed.!"
         }
     }
-
 }
