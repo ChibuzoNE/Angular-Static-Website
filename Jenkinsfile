@@ -95,7 +95,9 @@ pipeline {
 
         stage('Deploy with Ansible') {
         steps {
+
             sh '''
+                ssh -o StrictHostKeyChecking=no ec2-user@172.31.20.58 \\
                 echo "$ANSIBLE_VAULT_PASSWORD" > .vault_pass
                 chmod 600 .vault_pass
                 ansible-playbook -i hosts.ini angular-app.yml \
@@ -104,6 +106,7 @@ pipeline {
                 rm -f .vault_pass
                 '''
             }
+
         }
 
     }
