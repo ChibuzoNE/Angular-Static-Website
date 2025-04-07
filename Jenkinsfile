@@ -1,4 +1,4 @@
-pipeline { 
+pipeline {
     agent any
 
     tools {
@@ -105,8 +105,8 @@ pipeline {
                     rm -f .vault_pass"
                 '''
                 }
+            }
         }
-
     }
 
     post {
@@ -114,7 +114,7 @@ pipeline {
             echo "Deployment successful!"
         }
         failure {
-            echo "Deployment failed!"
+            echo "Deployment failed.!"
         }
     }
 }
