@@ -28,11 +28,4 @@
     mode: '0644'
   when: not sample_data_file.stat.exists
 
-# Step 2: Import sample data into the database
-- name: Import sample data
-  community.mysql.mysql_db:
-    name: "{{ mariadb_database }}"
-    state: import
-    target: /tmp/sample_data.sql
-    login_unix_socket: /var/run/mysqld/mysqld.sock
-  when: users_table_check.query_result[0] is not defined
+
