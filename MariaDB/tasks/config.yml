@@ -19,28 +19,20 @@
     path: /tmp/sample_data.sql
   register: sample_data_file
 
+<<<<<<< HEAD
+# Step 1: Copy sample data file if it doesn't already exist
+- name: Copy sample data file to target server
+  copy:
+    src: files/sample_data.sql
+    dest: /tmp/sample_data.sql
+    mode: '0644'
+  when: not sample_data_file.stat.exists
+=======
 - name: Check if users table exists
   community.mysql.mysql_query:
     query: "SELECT COUNT(*) AS table_exists FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '{{ mariadb_database }}' AND table_name = 'users'"
     login_unix_socket: /var/run/mysqld/mysqld.sock
   register: table_check
+>>>>>>> 4f1de76a19322e5fefe44d9c1a20ebec6889f345
 
-- name: Process sample data import
-  block:
-    - name: Check for existing index
-      community.mysql.mysql_query:
-        query: |
-          SELECT COUNT(*) AS index_exists 
-          FROM INFORMATION_SCHEMA.STATISTICS 
-          WHERE table_schema = '{{ mariadb_database }}' 
-          AND table_name = 'users' 
-          AND index_name = 'idx_username'
-        login_unix_socket: /var/run/mysqld/mysqld.sock
-      register: index_check
 
-    - name: Modify SQL file if index exists
-      replace:
-        path: /tmp/sample_data.sql
-        regexp: '^CREATE INDEX idx_username ON users\(username\)'
-        replace: '-- Index already exists'
-      when: index_check.query_result[0].index_exists > 0
