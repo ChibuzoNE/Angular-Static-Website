@@ -5,6 +5,13 @@
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
+- name: Delete all users from the users table
+  community.mysql.mysql_query:
+    login_user: root
+    login_password: SuperSecurePass456
+    login_db: angular_app_db
+    query: "DELETE FROM users;"
+
 - name: Create MariaDB user
   community.mysql.mysql_user:
     name: "{{ mariadb_user }}"
