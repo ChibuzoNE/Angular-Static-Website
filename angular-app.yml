@@ -8,18 +8,6 @@
     - amazon.aws
     - community.aws
 
-- name: Add app-server1 to known_hosts
-  ansible.builtin.known_hosts:
-    name: app-server1
-    key: "{{ lookup('pipe', 'ssh-keyscan app-server1') }}"
-
-- name: Add app-server2 to known_hosts
-  ansible.builtin.known_hosts:
-    name: app-server2
-    key: "{{ lookup('pipe', 'ssh-keyscan app-server2') }}"
-
-
-
   roles:
   - Apache
   - Deploy
