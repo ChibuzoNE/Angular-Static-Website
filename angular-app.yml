@@ -11,4 +11,4 @@
   roles:
   - Apache
   - Deploy
- # - MariaDB
+  - MariaDB
