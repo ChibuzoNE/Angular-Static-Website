@@ -9,7 +9,7 @@
   community.mysql.mysql_user:
     name: "{{ mariadb_user }}"
     password: "{{ mariadb_password }}"
-    priv: "{{ mariadb_db_name }}.*:ALL"
+    priv: "{{ mariadb_database }}.*:ALL"
     host: "{{ mariadb_host }}"
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
@@ -23,20 +23,20 @@
 # Step 1: Copy sample data file if it doesn't already exist
 - name: Copy sample data file to target server
   copy:
-    src: files/sample_data.sql   # Make sure this file exists in your role or project `files/` directory
+    src: files/sample_data.sql
     dest: /tmp/sample_data.sql
     mode: '0644'
   when: not sample_data_file.stat.exists
 
-- name: Check if sample data file exists
-  stat:
-    path: /tmp/sample_data.sql
-  register: sample_data_file
-
-- name: Import sample data (if available)
+# Step 2: Import sample data into the database
+- name: Import sample data
   community.mysql.mysql_db:
     name: "{{ mariadb_database }}"
     state: import
     target: /tmp/sample_data.sql
     login_unix_socket: /var/run/mysqld/mysqld.sock
+<<<<<<< HEAD
 ...
+=======
+  when: sample_data_file.stat.exists
+>>>>>>> 7d5139ab01d73252e30807cba21d27c0bcb43544
