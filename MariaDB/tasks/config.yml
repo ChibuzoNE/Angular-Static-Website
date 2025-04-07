@@ -5,7 +5,7 @@
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: Create MariaDB user
-  community.mysql.mysql_db:
+  community.mysql.mysql_user:
     name: "{{ mariadb_username }}"
     password: "{{ mariadb_password }}"
     priv: "{{ mariadb_db_name }}.*:ALL"
